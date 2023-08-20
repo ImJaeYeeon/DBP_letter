@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
-    <title>My letter to you</title>
+    <title>letter make</title>
     <style>
         body {
             display: flex;
@@ -19,32 +18,22 @@
             flex-direction: column;
             /* 요소들을 수직으로 배치 */
         }
-
-        img {
-            width: 600px;
-            /* 이미지 크기 설정 */
-            height: 600px;
-            /* 이미지 크기 설정 */
-            background-color: white;
-            /* 이미지 배경색 설정 */
-        }
-
         button {
-            margin-top: 20px;
+            margin-top: 300px;
             /* 버튼을 이미지 아래로 내리기 위한 여백 설정 */
         }
+        div{
+            margin-right: 400px;
+        }
+
     </style>
 </head>
-
 <body>
-    <img src="img/title.png" alt="">
-    <button type="button" class="btn btn-lg" id="startButton" style="background-color: pink;">시작하기</button>
-
-    <script>
-        const startButton = document.getElementById('startButton');
-        startButton.addEventListener('click', function () {
-            window.location.href = 'login.html';
-        });
-    </script>
+    <h3>누구에게 보낼건가요?</h3> <br><br>
+    <div>
+        <label class="input-label" for="to">To.</label>
+        <input type="text" placeholder="이름을 입력해주세요" style="border: none; background: transparent;">
+    </div>
+    <button type="button" class="btn btn-lg" style="background-color: pink;">시작하기</button>
 </body>
 </html>

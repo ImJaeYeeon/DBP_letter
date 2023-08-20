@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <title>join</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #FFE2C0;
+            /* 빈 공간 배경색 설정 */
+            flex-direction: column;
+            /* 요소들을 수직으로 배치 */
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .input-label {
+            margin-right: 10px;
+        }
+
+        button {
+            margin-top: 50px;
+            /* 버튼을 이미지 아래로 내리기 위한 여백 설정 */
+        }
+
+        div{
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="input-container">
+        <label class="input-label" for="name">NAME</label>
+        <input type="text" id="name" placeholder="이름을 입력하세요">
+    </div>
+    <div class="input-container">
+        <label class="input-label" for="id">ID</label>
+        <input type="text" id="id" placeholder="아이디를 입력하세요">
+    </div>
+    <div class="input-container">
+        <label class="input-label" for="password">PASSWORD</label>
+        <input type="password" id="password" placeholder="비밀번호를 입력하세요">
+    </div>
+    <button type="button" class="btn btn-lg" id="joinButton" style="background-color: pink;">회원가입</button>
+
+    <script>
+        const startButton = document.getElementById('joinButton');
+        startButton.addEventListener('click', function () {
+            alert('회원가입이 완료되었습니다.');
+            window.location.href = 'login.html'; // 로그인 페이지로 이동
+        });
+    </script>
+</body>
+</html>
