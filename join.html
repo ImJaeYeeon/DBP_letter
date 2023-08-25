@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,32 +34,53 @@
             /* 버튼을 이미지 아래로 내리기 위한 여백 설정 */
         }
 
-        div{
+        div {
             margin-top: 20px;
         }
     </style>
 </head>
-<body>
-    <div class="input-container">
-        <label class="input-label" for="name">NAME</label>
-        <input type="text" id="name" placeholder="이름을 입력하세요">
-    </div>
-    <div class="input-container">
-        <label class="input-label" for="id">ID</label>
-        <input type="text" id="id" placeholder="아이디를 입력하세요">
-    </div>
-    <div class="input-container">
-        <label class="input-label" for="password">PASSWORD</label>
-        <input type="password" id="password" placeholder="비밀번호를 입력하세요">
-    </div>
-    <button type="button" class="btn btn-lg" id="joinButton" style="background-color: pink;">회원가입</button>
 
+<body>
+    <form action="/join" method="POST">
+        <div class="input-container">
+            <label class="input-label" for="user_name">NAME</label>
+            <input type="text" id="user_name" name="user_name" placeholder="이름을 입력하세요">
+        </div>
+        <div class="input-container">
+            <label class="input-label" for="user_id">ID</label>
+            <input type="text" id="user_id" name="user_id" placeholder="아이디를 입력하세요">
+        </div>
+        <div class="input-container">
+            <label class="input-label" for="password">PASSWORD</label>
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요">
+        </div>
+    </form>
+    <button type="submit" class="btn btn-lg" id="joinButton" style="background-color: pink;">회원가입</button>
+    <p>Already have an account? <a href="login.html">Login</a></p>
     <script>
-        const startButton = document.getElementById('joinButton');
-        startButton.addEventListener('click', function () {
-            alert('회원가입이 완료되었습니다.');
-            window.location.href = 'login.html'; // 로그인 페이지로 이동
+        const joinButton = document.getElementById('joinButton');
+        joinButton.addEventListener('click', async function () {
+            const user_id = document.getElementById('user_id').value;
+            const user_name = document.getElementById('user_name').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('/join', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ user_id, user_name, password })
+            });
+
+            if (response.ok) {
+                alert('회원가입이 완료되었습니다.');
+                window.location.href = 'login.html'; // 로그인 페이지로 이동
+            } else {
+                alert('회원가입에 실패했습니다.');
+            }
         });
     </script>
+
 </body>
+
 </html>

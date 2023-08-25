@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <title>letter</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #FFE2C0;
+            /* 빈 공간 배경색 설정 */
+            flex-direction: column;
+            /* 요소들을 수직으로 배치 */
+        }
+
+        button {
+            margin-top: 200px;
+            /* 버튼을 이미지 아래로 내리기 위한 여백 설정 */
+        }
+
+        #to {
+            margin-right: 400px;
+            display: flex;
+            align-items: center;
+            /* 수직 중앙 정렬을 위한 스타일 추가 */
+        }
+
+        #to label {
+            margin-right: 10px;
+            /* 라벨과 텍스트 간의 간격 조정 */
+        }
+    </style>
+</head>
+
+<body>
+    <div id="to">
+        <label class="input-label" for="dear_name">To.</label>
+        <p id="dear_name"><%= dear_name %></p>
+    </div>
+    <button type="button" class="btn btn-lg" style="background-color: pink;" onclick="goToMessage()">편지쓰기</button>
+
+    <script>
+        const dear_name = "<%= dear_name %>";
+
+        async function createMessage() {
+            try {
+                const response = await fetch('/create-message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        dear_name: dear_name,
+                        writer_name: 'Your Name',
+                        content: 'Initial message content'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const messageUrl = data.url;
+                    window.location.href = messageUrl;
+                } else {
+                    console.error('Failed to create message');
+                }
+            } catch (error) {
+                console.error('Error creating message:', error);
+            }
+        }
+
+        function goToMessage() {
+            createMessage();
+        }
+    </script>
+</body>
+</html>

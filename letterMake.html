@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,22 +19,55 @@
             flex-direction: column;
             /* 요소들을 수직으로 배치 */
         }
+
         button {
-            margin-top: 300px;
+            margin-top: 100px;
             /* 버튼을 이미지 아래로 내리기 위한 여백 설정 */
         }
-        div{
+
+        #to {
             margin-right: 400px;
         }
 
+        #from {
+            margin-left: 400px;
+            margin-top: 300px;
+        }
     </style>
 </head>
+
 <body>
     <h3>누구에게 보낼건가요?</h3> <br><br>
-    <div>
-        <label class="input-label" for="to">To.</label>
-        <input type="text" placeholder="이름을 입력해주세요" style="border: none; background: transparent;">
+    <div id="to">
+        <label class="input-label" for="dear_name">To.</label>
+        <input type="text" id="dear_name" name="dear_name" placeholder="이름을 입력해주세요"
+            style="border: none; background: transparent;">
     </div>
-    <button type="button" class="btn btn-lg" style="background-color: pink;">시작하기</button>
+    <div id="from">
+        <label class="input-label" for="user_id">from.</label>
+        <input type="text" id="user_id" name="user_id" placeholder="아이디를 입력하세요"  style="border: none; background: transparent;">
+    </div>
+    <button type="button" class="btn btn-lg" style="background-color: pink;" onclick="startLetter()">시작하기</button>
+    <script>
+        async function startLetter() {
+            const dear_name = document.getElementById('dear_name').value;
+            const user_id = document.getElementById('user_id').value;
+    
+            const response = await fetch('/create-letter', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ dear_name, user_id })
+            });
+    
+            if (response.ok) {
+                const responseData = await response.json();
+                window.location.href = responseData.url;
+            } else {
+                alert('편지 작성 중 오류가 발생했습니다.');
+            }
+        }
+    </script>
 </body>
 </html>

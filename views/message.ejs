@@ -1,0 +1,66 @@
+<!-- message.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- head 섹션 내용 -->
+</head>
+
+<body>
+    <div id="to">
+        <label class="input-label" for="dear_name">To.</label>
+        <p id="dear_name"><%= dear_name %></p>
+    </div>
+    <div>
+        <label class="input-label" for="content">내용:</label>
+        <textarea name="content" id="content" cols="70" rows="20" style="border: solid; background: transparent;"
+            placeholder="내용을 입력하세요"></textarea>
+    </div>
+    <div id="from">
+        <label class="input-label" for="writer_name">작성자:</label>
+        <input type="text" id="writer_name" name="writer_name" placeholder="이름을 입력하세요"
+            style="border: none; background: transparent;">
+    </div>
+    <button type="button" class="btn btn-lg" style="background-color: pink;" onclick="submitMessage()">작성완료</button>
+
+    <script>
+        const dear_name = "<%= dear_name %>";
+
+        function submitMessage() {
+            const content = document.getElementById('content').value;
+            const writer_name = document.getElementById('writer_name').value;
+
+            // You can add a prompt here to ask for the user's ID
+            const user_id = prompt('Enter your user ID:');
+            
+            // Send the data to the server
+            fetch('/create-message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    dear_name,
+                    writer_name,
+                    content,
+                    user_id,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.url) {
+                    alert('작성이 완료되었습니다.');
+                    window.location.href = data.url; // Redirect to the message page
+                } else {
+                    alert('작성에 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('Error creating message:', error);
+                alert('메시지 생성 중 오류가 발생했습니다.');
+            });
+        }
+    </script>
+</body>
+</html>
