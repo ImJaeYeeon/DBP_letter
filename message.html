@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,60 +42,91 @@
             margin-left: 400px;
             margin-top: 10px;
         }
-        #userid{
+
+        #userid {
             margin-left: 400px;
             margin-top: 10px;
         }
-        
     </style>
 </head>
+
 <body>
-    <div id="to">
-        <label class="input-label" for="dear_name">To.</label>
-        <input type="text" id="dear_name" name="dear_name" placeholder="이름을 입력해주세요"
-            style="border: none; background: transparent;">
-    </div>
-    <textarea name="content" id="content" cols="70" rows="20" style="border: solid; background: transparent;" placeholder="내용을 입력하세요"></textarea>
-    <div id="from">
-        <label class="input-label" for="writer_name">from.</label>
-        <input type="text" id="writer_name" name="writer_name" placeholder="이름을 입력하세요" style="border: none; background: transparent;">
-    </div>
-    <div id="userid">
-        <label class="input-label" for="user_id" style="margin: auto;">MyID.</label>
-        <input type="text" id="user_id" name="user_id" placeholder="아이디를 입력하세요" style="border: none; background: transparent;">
-    </div>
-    <button type="button" class="btn btn-lg" style="background-color: pink;" id="makeMessage" onclick="goToMessage()">작성완료</button>
+    <form action="/create-message">
+        <div id="to">
+            <label class="input-label" for="dear_name">To.</label>
+            <input type="text" id="dear_name" name="dear_name" placeholder="이름을 입력해주세요"
+                style="border: none; background: transparent;">
+        </div>
+        <textarea name="content" id="content" cols="70" rows="20" style="border: solid; background: transparent;"
+            placeholder="내용을 입력하세요"></textarea>
+        <div id="from">
+            <label class="input-label" for="writer_name">from.</label>
+            <input type="text" id="writer_name" name="writer_name" placeholder="이름을 입력하세요"
+                style="border: none; background: transparent;">
+        </div>
+        <div id="userid">
+            <label class="input-label" for="user_id" style="margin: auto;">MyID.</label>
+            <input type="text" id="user_id" name="user_id" placeholder="아이디를 입력하세요"
+                style="border: none; background: transparent;">
+        </div>
 
-    <!-- 스크립트 -->
+    </form>
+    <!-- <button type="button" class="btn btn-lg" style="background-color: pink;" id="makeMessage" onclick="goToMessage()">작성완료</button>
+
     <script>
+       
+    </script> -->
 
-function goToMessage() {
-    window.location.href = `/create-message?dear_name=${dear_name}&writer_name=${loggedInUserId}`;
-  }
-        const dear_name = '<%= dear_name %>'; // letter.ejs에서 전달받은 dearName 값
 
-        document.getElementById('dear_name').value = dear_name; // 이름 입력란에 값을 넣음
+    <button type="button" class="btn btn-lg" style="background-color: pink;" id="makeMessage">작성완료</button>
 
-        document.getElementById('makeMessage').addEventListener('click', async () => {
+    <script>
+        function goToMessage() {
+            const dear_name = document.getElementById('dear_name').value;
             const content = document.getElementById('content').value;
             const writer_name = document.getElementById('writer_name').value;
+            const user_id = document.getElementById('user_id').value;
 
-            const response = await fetch('/create-message', {
+            if (!dear_name || !content || !writer_name || !user_id) {
+                alert('모든 필드를 입력해주세요.');
+                return;
+            }
+
+            // 작성한 데이터를 서버로 전송
+            fetch('/create-message', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ dear_name, writer_name, content })
-            });
+                body: JSON.stringify({
+                    dear_name,
+                    content,
+                    writer_name,
+                    user_id
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 메시지 생성이 성공하면 다음 페이지로 이동
+                        window.location.href = data.url;
+                    } else {
+                        alert('메시지 생성에 실패했습니다.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error creating message:', error);
+                    alert('메시지 생성 중 오류가 발생했습니다.');
+                });
+        }
 
-            if (response.ok) {
-                const result = await response.json();
-                alert('작성이 완료되었습니다.');
-                window.location.href = result.url; // 새로 생성된 메시지의 URL로 이동
-            } else {
-                alert('메세지 작성 중 오류가 발생했습니다.');
-            }
-        });
+        document.getElementById('makeMessage').addEventListener('click', goToMessage);
     </script>
+
+
+
+
+
 </body>
+
 </html>

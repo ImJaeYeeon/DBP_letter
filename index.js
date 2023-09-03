@@ -4,7 +4,30 @@ const oracledb = require("oracledb");
 const app = express();
 const path = require("path");
 const PORT = 3000;
+const cors = require("cors");
 oracledb.initOracleClient({ libDir: "C:/instantclient_11_2" });
+
+// 데이터베이스 커넥션 풀 생성
+oracledb.createPool(
+  {
+    user: "LETTER",
+    password: "1234",
+    connectString: "localhost:1521/xe",
+    poolAlias: "default", // 별칭 지정
+    poolMax: 10, // 최대 커넥션 수 설정
+    poolMin: 2, // 최소 커넥션 수 설정
+    poolIncrement: 1, // 커넥션 증가 수 설정
+  },
+  (err, pool) => {
+    if (err) {
+      console.error("Error creating pool:", err);
+    } else {
+      console.log("Pool created:", pool.poolAlias);
+    }
+  }
+);
+
+app.use(cors());
 
 app.use(bodyParser.json());
 
@@ -61,6 +84,7 @@ app.post("/join", async (req, res) => {
 
   try {
     const connection = await oracledb.getConnection();
+    poolAlias: "default";
     await connection.execute(
       `INSERT INTO joinuser (user_name, user_id, password) VALUES (:user_name, :user_id, :password)`,
       [user_name, user_id, password]
@@ -158,8 +182,8 @@ app.post("/create-letter", async (req, res) => {
   }
 });
 
-// 시퀀스로부터 message_id 생성하는 로직 추가
-app.get("/create-message", async (req, res) => {
+//편지 작성 페이지로 이동하는 라우팅 (GET 요청)
+app.get("/message", async (req, res) => {
   const { dear_name, writer_name } = req.query;
 
   try {
@@ -169,7 +193,7 @@ app.get("/create-message", async (req, res) => {
       connectString: "localhost:1521/xe",
     });
 
-    // 조인을 사용하여 dear_name을 가져옴
+    // dear_name을 사용하여 편지 정보 가져오기
     const query = `
       SELECT l.dear_name
       FROM letter l
@@ -192,8 +216,9 @@ app.get("/create-message", async (req, res) => {
   }
 });
 
+// 메시지 생성 로직을 처리하는 라우팅 (POST 요청)
 app.get("/create-message", async (req, res) => {
-  const { dear_name, writer_name } = req.query;
+  const { dear_name, user_id, writer_name, content } = req.body;
 
   try {
     const connection = await oracledb.getConnection({
@@ -202,37 +227,76 @@ app.get("/create-message", async (req, res) => {
       connectString: "localhost:1521/xe",
     });
 
-    // 조인을 사용하여 dear_name을 가져옴
-    const query = `
-      SELECT l.dear_name
-      FROM letter l
-      WHERE l.dear_name = :dear_name
-    `;
+    // user_id를 사용하여 user 테이블에서 해당 사용자의 데이터 확인
+    const userCheckQuery = `
+          SELECT user_id
+          FROM joinuser
+          WHERE user_id = :user_id
+      `;
+    const userCheckResult = await connection.execute(userCheckQuery, [user_id]);
 
-    const result = await connection.execute(query, [dear_name]);
+    console.log(userCheckResult);
 
-    if (result.rows.length === 0) {
-      res.status(404).send("편지를 찾을 수 없습니다.");
+    if (userCheckResult.rows.length == 0) {
+      res.status(403).send("유효한 사용자 아님");
       return;
     }
 
+    // message 테이블에 데이터 삽입
+    const insertMessageQuery = `
+          INSERT INTO message (message_id, writer_name, content, user_id)
+          VALUES (sequence2.nextval, :writer_name, :content, :user_id)
+      `;
+    await connection.execute(insertMessageQuery, [
+      dear_name,
+      writer_name,
+      content,
+      user_id,
+    ]);
+
     await connection.close();
 
-    res.render("message", { dear_name, writer_name });
+    // 원하는 동작 또는 응답 수행
+    res.send("메시지 작성 및 삽입 완료");
   } catch (err) {
-    console.error("Error retrieving dear_name:", err);
+    console.error("Error creating message:", err);
+    res.status(500).send("메시지 생성 중 오류가 발생했습니다.");
+  }
+});
+// 편지 삭제를 위한 라우팅
+app.delete("/delete-letter/:dear_name", async (req, res) => {
+  const { dear_name } = req.params;
+
+  try {
+    const connection = await oracledb.getConnection({
+      user: "LETTER",
+      password: "1234",
+      connectString: "localhost:1521/xe",
+    });
+
+    // 편지를 삭제하는 SQL 쿼리를 실행합니다.
+    const result = await connection.execute(
+      `DELETE FROM letter WHERE dear_name = :dear_name`,
+      [dear_name]
+    );
+
+    await connection.close();
+
+    if (result.rowsAffected === 1) {
+      // 편지 삭제 성공
+      res.status(204).send(); // No Content 응답
+    } else {
+      // 편지를 찾을 수 없음
+      res.status(404).send("편지를 찾을 수 없습니다.");
+    }
+  } catch (err) {
+    console.error("Error deleting letter:", err);
     res.status(500).send("서버 오류가 발생했습니다.");
   }
 });
 
 // 정적 파일 (index.html, login.html, join.html) 서비스 설정
 app.use(express.static(__dirname));
-
-// 404 핸들러
-app.use((req, res, next) => {
-  res.status(404).send("페이지를 찾을 수 없습니다");
-});
-
 // 에러 핸들러
 app.use((err, req, res, next) => {
   console.error("Unhandled Error:", err);
